@@ -1,0 +1,67 @@
+version: '3.9'
+services: 
+# Serviço nginx
+  nginx: 
+    # Processo de build
+    build: 
+      #Informamos que devemos realizar o build da imagem de acordo com o seguinte Dockerfile
+      dockerfile: ./docker/nginx.dockerfile
+      #Qual contexto deve buscar as informações
+      context: .
+      # Nome da imagem criada
+    image: brunoa/nginx
+    container_name: nginx
+    # Mapeando as portas
+    ports:
+      - "80:80" 
+    # Informando as redes do serviço
+    networks:
+      - production-network 
+    # Informando dependencia de outros serviços
+    depends_on: 
+      - "node01"
+      - "node02"
+      - "node03"
+  mongodb:
+    image: mongo
+    networks: 
+      - production-network
+  node01:
+    build: 
+      dockerfile: ./docker/alura-books.dockerfile
+      context: .
+    image: brunoa/alura-books
+    container_name: alura-books-01
+    ports:
+      - "3000:3000" 
+    networks: 
+    - production-network
+    depends_on: 
+      - "mongodb"
+  node02:
+    build: 
+      dockerfile: ./docker/alura-books.dockerfile
+      context: .
+    image: brunoa/alura-books
+    container_name: alura-books-02
+    ports:
+      - "3000" 
+    networks: 
+      - production-network
+    depends_on: 
+      - "mongodb"  
+  node03:
+    build: 
+      dockerfile: ./docker/alura-books.dockerfile
+      context: .
+    image: brunoa/alura-books
+    container_name: alura-books-03
+    ports:
+        - "3000" 
+    networks: 
+      - production-network
+    depends_on: 
+      - "mongodb"
+networks:    
+  production-network: 
+    driver: "bridge"
